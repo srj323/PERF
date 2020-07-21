@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Cibil Report</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <title></title>
+  </head>
+  <body>
+    <center><h1>Credit Report</h1></center>
+    <hr>
+    <br>
+
+    <div class="card border-primary mx-auto" style="max-width: 80rem; border-width:3px;">
+      <div class="card-header bg-primary text-black" style="font-weight: bold;text-align:center;">Your Credit Score
+      </div>
+      <div class="card-body  mx-auto border bg-dark text-white">
+        {{credit_score}}
+      </div>
+    </div>
+    <br><br>
+    <div class="card border-primary mx-auto" style="max-width: 80rem; border-width:3px;">
+      <div class="card-header bg-primary text-black" style="font-weight: bold;text-align:center;">PERSONAL INFORMATION
+      </div>
+      <div class="card-body  border bg-dark text-white">
+        <table style="width:100%">
+          <tr>
+            <th>Username <th>
+            <th>:</th>
+            <th>{{personal_info.Username}}</th>
+            <th></th>
+            <th></th>
+            <th>Gender</th>
+            <th>:</th>
+            <th>{{personal_info.Gender}}</th>
+          </tr>
+
+          <tr>
+            <th>Name<th>
+            <th>:</th>
+            <th>{{personal_info.First_Name}}{{personal_info.Last_Name}}</th>
+            <th></th>
+            <th></th>
+            <th>PAN Number </th>
+            <th>:</th>
+            <th>{{personal_info.PAN_Number}}</th>
+          </tr>
+
+          <tr>
+            <th>Email <th>
+            <th>:</th>
+            <th>{{personal_info.Email}}</th>
+            <th></th>
+            <th></th>
+            <th>PAN Issue Date </th>
+            <th>:</th>
+            <th>{{personal_info.PAN_Issue_Date}}</th>
+          </tr>
+
+          <tr>
+            <th>DOB <th>
+            <th>:</th>
+            <th>{{personal_info.DOB}}</th>
+            <th></th>
+            <th></th>
+            <th>Aadhar NUmber </th>
+            <th>:</th>
+            <th>{{personal_info.Aadhar_Number}}</th>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <br><br>
+
+    <div class="card border-primary mx-auto" style="max-width: 80rem; border-width:3px;">
+      <div class="card-header bg-primary text-black" style="font-weight: bold;text-align:center;">CONTACT INFORMATION
+      </div>
+      <div class="card-body  border bg-dark text-white">
+        <table style="width:100%">
+          <tr>
+            <th>Address <th>
+            <th>:</th>
+            <th> {{contact_info.Home}}, {{contact_info.Street}} </th>
+            <th></th>
+            <th></th>
+            <th>Pin</th>
+            <th>:</th>
+            <th>{{contact_info.Pin}}</th>
+          </tr>
+
+          <tr>
+            <th>City<th>
+            <th>:</th>
+            <th>{{contact_info.City}}</th>
+            <th></th>
+            <th></th>
+            <th>Mobile Number</th>
+            <th>:</th>
+            <th>{{contact_info.Mobile_Number}}</th>
+          </tr>
+
+          <tr>
+            <th>State<th>
+            <th>:</th>
+            <th>{{contact_info.State}}</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+  <br><br>
+
+    <div class="card border-primary mx-auto" style="max-width: 80rem; border-width:3px;">
+      <div class="card-header bg-primary text-black" style="font-weight: bold;text-align:center;">CREDIT CARD INFORMATION
+      </div>
+      <div class="card-body  border bg-dark text-white">
+      {% for card in credit_card_list %}
+        <hr><hr>
+        <h3>CARD</h3>
+        <table style="width:100%">
+          <tr>
+            <th>Credit Card No<th>
+            <th>:</th>
+            <th>{{card.Credit_Card_No}}</th>
+            <th></th>
+            <th></th>
+            <th>Issue Date</th>
+            <th>:</th>
+            <th>{{card.Date_Issued}}</th>
+          </tr>
+
+          <tr>
+            <th>Credit Limit<th>
+            <th>:</th>
+            <th>{{card.Credit_Limit}}</th>
+            <th></th>
+            <th></th>
+            <th>Expiry Date</th>
+            <th>:</th>
+            <th>{{card.Date_Expired}}</th>
+          </tr>
+
+          <tr>
+            <th>Balance<th>
+            <th>:</th>
+            <th>{{card.Current_Balance}}</th>
+            <th></th>
+            <th></th>
+            <th>Status</th>
+            <th>:</th>
+            <th>{{card.Credit_Card_Status}}</th>
+          </tr>
+
+          <tr>
+            <th>Interest Rate </th>
+            <th>:</th>
+            <th>{{card.Rate_Of_Interest}}</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+          </tr>
+
+        </table>
+        <span></span><br>
+        <hr>
+      {% endfor %}
+      </div>
+    </div>
+
+  <br><br>
+
+    <div class="card border-primary mx-auto" style="max-width: 80rem; border-width:3px;">
+      <div class="card-header bg-primary text-black"  style="font-weight: bold;text-align:center;">Loan INFORMATION
+      </div>
+      {% for card in details %}
+        <div class="card-body  border bg-dark text-white">
+        <h3>CARD</h3>
+        {% for loan in card %}
+          <h4>Loan</h4>
+          <hr>
+          <table style="width:100%">
+            <tr>
+              <th>Loan Id</th>
+              <th>:</th>
+              <th>{{loan.0.Loan_Id}}</th>
+              <th></th>
+              <th></th>
+              <th>Start Date</th>
+              <th>:</th>
+              <th>{{loan.0.Loan_Start_Date}}</th>
+            </tr>
+
+            <tr>
+              <th>Loan Amount</th>
+              <th>:</th>
+              <th> {{loan.0.Loan_Amount}}</th>
+              <th></th>
+              <th></th>
+              <th>End Date</th>
+              <th>:</th>
+              <th>{{loan.0.Loan_End_Date}}</th>
+            </tr>
+
+            <tr>
+              <th>Loan Type</th>
+              <th>:</th>
+              <th>{{loan.0.Loan_Type}}</th>
+              <th></th>
+              <th></th>
+              <th>Status</th>
+              <th>:</th>
+              <th>{{loan.0.Loan_Status}}}</th>
+            </tr>
+
+            <tr>
+              <th>Loan_Duration</th>
+              <th>:</th>
+              <th>{{loan.0.Loan_Duration}}</th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+            </tr>
+          </table>
+          <br>
+          <hr>
+          <table style="width:100%">
+            <tr>
+              <th>Payment Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Paid On</th>
+            </tr>
+          {% for history in loan.1 %}
+            <tr>
+              <th>{{history.Payment_Date}}</th>
+              <th>{{history.Amount_To_Pay}}</th>
+              <th>{{history.Payment_Status}}</th>
+              <th>{{history.Payment_Paid_On}}</th>
+            </tr>
+
+          {% endfor %}
+        </table>
+        <br><br>
+        {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+
+
+
+
+  </body>
+</html>
