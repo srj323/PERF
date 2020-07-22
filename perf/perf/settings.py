@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Cibil',
     'shop',
+    'Credit_Card',
 ]
 
 MIDDLEWARE = [

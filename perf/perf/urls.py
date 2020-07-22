@@ -22,5 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('cibil/', include('Cibil.urls')),
     path('shop/',include('shop.urls')),
+    path('Credit_card/',include('Credit_Card.urls')),
 
 ] + static(settings.MEDIA_URL ,document_root = settings.MEDIA_ROOT)
