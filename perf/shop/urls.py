@@ -11,6 +11,7 @@ urlpatterns = [
     path("search/", views.search,name="Search"),
     path("products/<int:myid>", views.productView,name="ProductView"), # data provided by html when this href is called
     path("checkout/", views.checkout,name="Checkout"),
+    path("perf/", views.perf, name="perf"),
 
     # Payment With Razorpay
     path("payment/", views.app_create,name="payment"),

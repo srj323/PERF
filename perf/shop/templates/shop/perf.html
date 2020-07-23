@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<title>Hey</title>
+
+<body>
+        <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value="pay">
+        </form>
+</body>
+<script>
+{% if thank %}
+alert('Thanks for ordering with us. Your order id is {{ id }}. Use it to track your order using our order tracker');
+localStorage.clear();
+document.location = "/shop/";
+
+{% endif %}
+</script>
