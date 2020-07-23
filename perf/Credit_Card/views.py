@@ -5,6 +5,7 @@ import random
 from .forms import *
 import datetime
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 
 
@@ -31,6 +32,13 @@ def credit_card_no(request):
             info.PAN_Issue_Date = form.cleaned_data['pan_issue_date']
             info.Aadhar_Number = form.cleaned_data['aadhar_no']
             info.Aadhar_Issue_Date = form.cleaned_data['aadhar_issue_date'] 
+            password = form.cleaned_data['password']
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            user = User.objects.create_user(username, email, password)
+            user.last_name = form.cleaned_data['lastname']
+            user.first_name = form.cleaned_data['firstname']
+            user.save()
             info.save()
             application = Application_History()
             application.Username = Personal_Information.objects.latest('Username')
