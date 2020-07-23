@@ -6,7 +6,14 @@
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <input type="submit" value="Loan Repayment">
+        <input type="submit" value="Loan Tracker">
     </form>
 
 </body>
+<script>
+{% if thank %}
+alert('Thanks for Repaying the loan to us.')
+localStorage.clear();
+document.location = "/Credit_card/payment/";
+{% endif %}
+</script>

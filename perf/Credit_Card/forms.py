@@ -23,6 +23,7 @@ class Loan(forms.Form):
 
 class Repayment(forms.Form):
     Creditcard = forms.IntegerField(label='Credit Card NO')
-    Amount = forms.IntegerField(label='Amount You Want To Pay')
+    username = forms.CharField(label='Your name', max_length=100)
+    loan_id = forms.CharField(label='Enter the Load Id you want to')
 
 

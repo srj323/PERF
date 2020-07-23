@@ -6,8 +6,10 @@ from .forms import Information, Loan, Repayment
 import datetime
 from django.utils import timezone
 from django.contrib.auth.models import User
+from .models import *
 
-
+import razorpay
+razorpay_client = razorpay.Client(auth=("rzp_test_HjTkiDCGJADmpE", "FFuLbceQq7d3bxsL2rawq6oR"))
 
 
 # Create your views here.
@@ -46,10 +48,86 @@ def Loan_repay(request):
     if request.method == 'POST':
         form = Repayment(request.POST)
         if form.is_valid():
-            print("yes")
+            number = form.cleaned_data['Creditcard']
+            name = form.cleaned_data['username']
+            loanid = form.cleaned_data['loan_id']
+            detail = Loan_Details.objects.filter(Loan_Id=loanid)
+            print(detail)
+            for i in detail:
+                amount = i.Loan_Amount
+                print(amount)
+            order_currency = 'INR'
+            order_receipt = 'order_rcptid_11'
+            notes = {'name': name}
+            razorpay_order = razorpay_client.order.create(dict(amount=amount*100, currency=order_currency, receipt=order_receipt, notes=notes, payment_capture='0'))
+            print(razorpay_order['id'])
+            order = Orders(Loan_Id=loanid, Credit_Card_No=number, amount=amount, razorpayid=razorpay_order['id'])   # saving in dataset just like by using python as in shell
+            order.save()
+            return render(request, 'payment.html', {'order_id': razorpay_order['id'], 'cname': name, 'cemail': number,'cphone':loanid})
+
     else:
         form = Repayment()
     return render(request, 'loan_repayment.html', {'form': form})
+
+
+def app_charge(request):
+    if request.method == "POST":
+        try:
+            print("yeah")
+            payment_id = request.POST.get('razorpay_payment_id', '')
+            print(payment_id)
+            order_id = request.POST.get('razorpay_order_id','')
+            print(order_id)
+            signature = request.POST.get('razorpay_signature','')
+            print(signature)
+            params_dict = { 
+            'razorpay_order_id': order_id, 
+            'razorpay_payment_id': payment_id,
+            'razorpay_signature': signature
+            }
+            order_db = Orders.objects.get(razorpayid=order_id)
+            order_db.razorpaypaymentid = payment_id
+            order_db.razorpaysignature = signature
+            order_db.save()
+            result = razorpay_client.utility.verify_payment_signature(params_dict)
+            print(result)
+            if result==None:
+                print("2nd")
+                amount = order_db.amount*100
+                try:
+                    razorpay_client.payment.capture(payment_id, amount)
+                    thank = True
+                    print("here")
+                    # id = request.POST.get('shopping_order_id','')
+                    # p = OrderUpdate.objects.order_by('order_id').last()
+                    # id = p.order_id
+                    params = {'thank': thank}
+                    update = Orders.objects.get(razorpayid=order_id)
+                    no = update.Credit_Card_No
+                    print(no)
+                    loanidd = update.Loan_Id
+                    print(loanidd)
+                    update_d = Credit_Card.objects.get(Credit_Card_No=no)
+                    update_d.Current_Balance = update_d.Current_Balance - order_db.amount
+                    update_d.save()
+                    update_dd = Loan_Details.objects.get(Loan_Id=loanidd)
+                    update_dd.Loan_Amount = update_dd.Loan_Amount - order_db.amount
+                    update_dd.Loan_Status = 'completed'
+                    update_dd.Loan_End_Date = datetime.datetime.now()
+                    update_dd.save()
+                    # response = json.dumps(razorpay_client.payment.fetch(payment_id))
+                    return render(request, 'loan_repayment.html', params)
+                except:
+                    print("expect")
+                    thank =  False
+                    return render(request, 'loan_repayment.html', {'thank': thank})
+            else:
+                print("else")
+                thank =  False
+                return render(request, 'loan_repayment.html', {'thank': thank})
+        except:
+            thank =  False
+            return render(request, 'loan_repayment.html', {'thank': thank})
 
 
 def credit_card_no(request): 
