@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .models import *
 
-from datetime import date
+from datetime import date,timedelta
 
 def numOfDays(date1, date2):
     return (date2-date1).days
@@ -20,11 +20,11 @@ def calculateScoreOnAge(age,usage_age):   #AGE IN YEARS
 #   if (age <=25) : return 125
 #   if (age >25) : return 135
 
-def calculateScoreOnHomeOwnership(ownership):
-    if (ownership == 'own'):
-        return 225
-    else:
-        return 110
+# def calculateScoreOnHomeOwnership(ownership):
+#     if (ownership == 'own'):
+#         return 225
+#     else:
+#         return 110
 
 ############################
 
@@ -40,19 +40,48 @@ def ScoreOnHistory(loan_list):
     else:
         return 0
 
+# def calculateScoreOnHistory(loan_details):
+#     list = [0]*5
+#     for card in loan_details:
+#         for loan in card:
+#             if loan[0].Loan_Status == 'completed':
+#                 a = numOfDays(loan[0].Loan_End_Date,date.today())/365 #in years i.e convert days to years
+#                 recent_factor = 1/(1+(a//7))# for every slab of 7 years
+#                 x = numOfDays(loan[0].Loan_Start_Date,loan[0].Loan_End_Date)-loan[0].Loan_Duration
+#                 if x==0: list[0]+=recent_factor*1
+#                 elif x>90: list[4]+=recent_factor*1
+#                 elif x>60: list[3]+=recent_factor*1
+#                 elif x>30: list[2]+=recent_factor*1
+#                 else: list[1]+=recent_factor*1
+#     score = ScoreOnHistory(list)
+
+
 def calculateScoreOnHistory(loan_details):
     list = [0]*5
     for card in loan_details:
         for loan in card:
-            if loan[0].Loan_Status == 'completed':
-                a = numOfDays(loan[0].Loan_End_Date,date.today())/365 #in years i.e convert days to years
+            for instalment in loan[1]:
+                a = numOfDays(instalment.Payment_Date,date.today())/365 #in years i.e convert days to years
                 recent_factor = 1/(1+(a//7))# for every slab of 7 years
-                x = numOfDays(loan[0].Loan_Start_Date,loan[0].Loan_End_Date)-loan[0].Loan_Duration
-                if x==0: list[0]+=recent_factor*1
-                elif x>90: list[4]+=recent_factor*1
-                elif x>60: list[3]+=recent_factor*1
-                elif x>30: list[2]+=recent_factor*1
-                else: list[1]+=recent_factor*1
+                if instalment.Payment_Status=="completed" or instalment.Payment_Status=="recovered":
+                    x = numOfDays(instalment.Payment_Date,instalment.Payment_Paid_On)
+                    if x==0: list[0]+=recent_factor*1
+                    elif x>90: list[4]+=recent_factor*-2
+                    elif x>60: list[3]+=recent_factor*0.25
+                    elif x>30: list[2]+=recent_factor*0.5
+                    else: list[1]+=recent_factor*0.75
+
+                elif instalment.Payment_Status!="ongoing": #'completed' or 'recovered' or 'unrecovered'
+                    x = numOfDays(instalment.Payment_Date,date.today())
+                    if x==0: list[0]+=recent_factor*1
+                    elif x>90: list[4]+=recent_factor*-2
+                    elif x>60: list[3]+=recent_factor*0.25
+                    elif x>30: list[2]+=recent_factor*0.5
+                    else: list[1]+=recent_factor*0.75
+
+                else:
+                    pass
+
     score = ScoreOnHistory(list)
 
 	#not_paid = -1
@@ -101,16 +130,16 @@ def calculateScoreOnNewCredit(username):
 
 
 
-def calculateScoreOnIncome(income):
-    if (income <= 10000): return 120
-    if (income <= 25000): return 140
-    if (income <= 35000): return 180
-    if (income <= 50000): return 200
-    if (income > 50000): return 225
+# def calculateScoreOnIncome(income):
+#     if (income <= 10000): return 120
+#     if (income <= 25000): return 140
+#     if (income <= 35000): return 180
+#     if (income <= 50000): return 200
+#     if (income > 50000): return 225
 
 
-def calculateCreditScore(age,homeOwnership,income,usage_age):
-    return calculateScoreOnAge(age,usage_age)+calculateScoreOnHomeOwnership(homeOwnership)+ calculateScoreOnIncome(income)
+# def calculateCreditScore(age,homeOwnership,income,usage_age):
+#     return calculateScoreOnAge(age,usage_age)+calculateScoreOnHomeOwnership(homeOwnership)+ calculateScoreOnIncome(income)
 
 
 def calculateCreditRating(score):
@@ -142,55 +171,55 @@ def calculateInterest(rating):
     else: return 29.99
 
 
-def createCalculation(loan, limit, term, interest):
-    useLoan = loan
-    if(loan > limit):
-        useLoan = limit
+# def createCalculation(loan, limit, term, interest):
+#     useLoan = loan
+#     if(loan > limit):
+#         useLoan = limit
+#
+#     totalInterest = (interest * useLoan * term) / 100
+#     totalRepayment = totalInterest + useLoan
+#     monthlyRepayment = totalRepayment / (term * 12)
+#     return {
+#         'approvedLoan': useLoan,
+#         'monthlyRepayment': monthlyRepayment,
+#         'totalRepayment': totalRepayment ,
+#         'totalInterest': totalInterest
+#     }
 
-    totalInterest = (interest * useLoan * term) / 100
-    totalRepayment = totalInterest + useLoan
-    monthlyRepayment = totalRepayment / (term * 12)
-    return {
-        'approvedLoan': useLoan,
-        'monthlyRepayment': monthlyRepayment,
-        'totalRepayment': totalRepayment ,
-        'totalInterest': totalInterest
-    }
 
-
-age=31
-homeOwnership='own'
-income=5000000
-loanAmount=100000
-type='personal'
-usage_age=0
-
-creditScore = calculateCreditScore(age,homeOwnership,income,usage_age);
-creditRating = calculateCreditRating(creditScore);
-loanThreshold = calculateLoanThreshold(creditRating);
-approvedInterest = calculateInterest(creditRating);
-
-granted = 'DENIED';
-if (creditScore > 490):
-    granted = 'ACCEPTED'
-    result = {'creditScore': creditScore,
-            'creditRating': creditRating,
-            'approval': granted,
-            'loanThreshold': loanThreshold,
-            'interest': approvedInterest,
-            'calculation': {
-                'threeYear': createCalculation(loanAmount, loanThreshold, 3, approvedInterest),
-                'fiveYear': createCalculation(loanAmount, loanThreshold, 5, approvedInterest),
-                }
-            }
-    print(result)
-else:
-        result = {
-            'creditScore': creditScore,
-            'creditRating': creditRating,
-            'approval': granted
-        }
-        print(result)
+# age=31
+# homeOwnership='own'
+# income=5000000
+# loanAmount=100000
+# type='personal'
+# usage_age=0
+#
+# creditScore = calculateCreditScore(age,homeOwnership,income,usage_age);
+# creditRating = calculateCreditRating(creditScore);
+# loanThreshold = calculateLoanThreshold(creditRating);
+# approvedInterest = calculateInterest(creditRating);
+#
+# granted = 'DENIED';
+# if (creditScore > 490):
+#     granted = 'ACCEPTED'
+#     result = {'creditScore': creditScore,
+#             'creditRating': creditRating,
+#             'approval': granted,
+#             'loanThreshold': loanThreshold,
+#             'interest': approvedInterest,
+#             'calculation': {
+#                 'threeYear': createCalculation(loanAmount, loanThreshold, 3, approvedInterest),
+#                 'fiveYear': createCalculation(loanAmount, loanThreshold, 5, approvedInterest),
+#                 }
+#             }
+#     print(result)
+# else:
+#         result = {
+#             'creditScore': creditScore,
+#             'creditRating': creditRating,
+#             'approval': granted
+#         }
+#         print(result)
 
 
 

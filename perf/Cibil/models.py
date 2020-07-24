@@ -75,14 +75,14 @@ class Loan_Details(models.Model):
     Loan_Id = models.AutoField(primary_key=True)
     Credit_Card_No = models.ForeignKey(Credit_Card, on_delete=models.CASCADE)
     Loan_Type = models.CharField(max_length=10)
+    On_Emi = models.BooleanField(default=False)
     Loan_Amount = models.FloatField(validators=[MinValueValidator(0)])
     Loan_Duration = models.IntegerField(validators=[MinValueValidator(0)]) #in DAYS
     Loan_Start_Date = models.DateField()
     Loan_End_Date = models.DateField() # will be updated when loan is completed
     Loan_Status = models.CharField(max_length=20) #ongoing,completed,cancelled,UnRecovered.
+    Loan_Interest_Rate = models.FloatField(default=12)
     #Amount_Paid
-
-
 
 class Loan_History(models.Model):
     Loan_Id =  models.ForeignKey(Loan_Details, on_delete=models.CASCADE)

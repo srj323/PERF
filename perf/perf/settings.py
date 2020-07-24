@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'Cibil',
     'shop',
     'Credit_Card',
+    'Emi',
 ]
 
 MIDDLEWARE = [
@@ -88,7 +89,7 @@ WSGI_APPLICATION = 'perf.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'perf_db',
+        'NAME': 'perf_db1',
     }
 }
 
