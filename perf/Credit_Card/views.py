@@ -32,6 +32,8 @@ def Loan_no(request):
             if loan.Loan_Amount < (credit.Credit_Limit - credit.Current_Balance):
                 print("yes")
                 loan.Loan_Status = 'ongoing'
+                print(credit.Current_Balance)
+                print(credit.Credit_Limit - credit.Current_Balance)
                 credit.Current_Balance = credit.Current_Balance + loan.Loan_Amount
                 loan.save()
                 credit.save()
@@ -110,7 +112,7 @@ def app_charge(request):
                     loanidd = update.Loan_Id
                     print(loanidd)
                     update_d = Credit_Card.objects.get(Credit_Card_No=no)
-                    update_d.Current_Balance = update_d.Current_Balance - order_db.amount
+                    update_d.Current_Balance = max(update_d.Current_Balance - order_db.amount,0)
                     update_d.save()
                     update_dd = Loan_Details.objects.get(Loan_Id=loanidd)
                     update_dd.Loan_Amount = update_dd.Loan_Amount - order_db.amount
