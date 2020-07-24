@@ -27,3 +27,6 @@ class Repayment(forms.Form):
     loan_id = forms.CharField(label='Enter the Load Id you want to')
 
 
+class log_form(forms.Form):
+    username = forms.CharField(label='Username', max_length=100)
+    password = forms.CharField(label='Password', max_length=100,widget=forms.PasswordInput)

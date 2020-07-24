@@ -2,8 +2,10 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from Cibil.models import Credit_Card, Personal_Information, Application_History, Loan_Details, Loan_History
 import random
-from .forms import Information, Loan, Repayment
+from .forms import Information, Loan, Repayment, log_form
 import datetime
+from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from django.utils import timezone
 from django.contrib.auth.models import User
 from .models import *
@@ -30,6 +32,8 @@ def Loan_no(request):
             if loan.Loan_Amount < (credit.Credit_Limit - credit.Current_Balance):
                 print("yes")
                 loan.Loan_Status = 'ongoing'
+                print(credit.Current_Balance)
+                print(credit.Credit_Limit - credit.Current_Balance)
                 credit.Current_Balance = credit.Current_Balance + loan.Loan_Amount
                 loan.save()
                 credit.save()
@@ -108,7 +112,7 @@ def app_charge(request):
                     loanidd = update.Loan_Id
                     print(loanidd)
                     update_d = Credit_Card.objects.get(Credit_Card_No=no)
-                    update_d.Current_Balance = update_d.Current_Balance - order_db.amount
+                    update_d.Current_Balance = max(update_d.Current_Balance - order_db.amount,0)
                     update_d.save()
                     update_dd = Loan_Details.objects.get(Loan_Id=loanidd)
                     update_dd.Loan_Amount = update_dd.Loan_Amount - order_db.amount
@@ -176,7 +180,7 @@ def credit_card_no(request):
                 credit.save()
                 application.Status = 'approved'
                 application.save()
-            return HttpResponseRedirect('loan/')
+            messages.success(request, f'Your account has been successfully created')
     else:
         form = Information()
 
@@ -186,4 +190,26 @@ def credit_card_no(request):
 
 
 
-        
+def log(request):
+    if request.method == 'POST':
+        form = log_form(request.POST)
+        if form.is_valid():
+            username = request.POST['username']
+            password = request.POST['password']
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                print("**********************")
+                personal_info = Personal_Information.objects.get(Username=username)
+                card = Credit_Card.objects.get(Username=personal_info.Username)
+                print(card.Credit_Card_No)
+                lon = Loan_Details.objects.filter(Credit_Card_No=card.Credit_Card_No)
+                print(lon)
+                return render(request, 'profile.html', {'personal_info':personal_info, 'card':card, 'loan':lon})
+            else:
+                return render(request, 'login.html')
+    
+    else:
+        form = log_form()
+    
+    return render(request, 'login.html',{'form':form})

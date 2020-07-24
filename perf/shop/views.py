@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from .models import Product, Contact, Orders, OrderUpdate
+from django.contrib.auth import authenticate
+from Cibil.models import Credit_Card
+from .forms import pay_form
 from math import ceil
 import json
 
@@ -11,6 +14,53 @@ razorpay_client = razorpay.Client(auth=("rzp_test_HjTkiDCGJADmpE", "FFuLbceQq7d3
 
 
 # Create your views here.
+def perf(request):
+    if request.method == 'POST':
+        form = pay_form(request.POST)
+        if form.is_valid():
+            number = form.cleaned_data['Credit_card_no']
+            h = Credit_Card.objects.get(Credit_Card_No=number)
+            passw = form.cleaned_data['password']
+            username = form.cleaned_data['username']
+            print(username)
+            print(h.Username)
+            user = authenticate(username=username, password=passw)
+            print(user)
+            if user is not None:
+                amount = Orders.objects.order_by('order_id').last()
+                print(amount.amount)
+                s = amount.amount
+                n = h.Current_Balance
+                if s < n :
+                    print("hii")
+                    h.Current_Balance = h.Current_Balance - s
+                    h.save()
+                    order_db = Orders.objects.order_by('order_id').last()
+                    update = OrderUpdate(order_id=order_db.order_id, update_desc="The order has been placed, Payment done by PERF CARD")
+                    update.save()
+                    p = OrderUpdate.objects.order_by('order_id').last()
+                    id = p.order_id
+                    thank = True
+                    params = {'thank': thank, 'id': id}
+                    return render(request, 'shop/checkout.html', params)
+                
+                else:
+                    
+                    thank = 2
+                    params = {'thank': thank}
+                    return render(request, 'shop/failure.html', params)
+
+        
+
+
+
+
+    else:
+        form = pay_form()
+    return render(request, 'shop/perf.html', {'form': form})
+
+
+
 def index(request):
     # products = Product.objects.all()
     # print(products)
@@ -90,7 +140,7 @@ def app_create(request):
         order_currency = 'INR'
         order_receipt = 'order_rcptid_11'
         notes = {'Shipping address': address}
-        razorpay_order = razorpay_client.order.create(dict(amount=order_amount, currency=order_currency, receipt=order_receipt, notes=notes, payment_capture='0'))
+        razorpay_order = razorpay_client.order.create(dict(amount=order_amount*100, currency=order_currency, receipt=order_receipt, notes=notes, payment_capture='0'))
         print(razorpay_order['id'])
         order = Orders(items_json=items_json, name=name, email=email,address=address,city=city,state=state,zip_code=zip_code, phone=phone, amount=order_amount, razorpayid=razorpay_order['id'])   # saving in dataset just like by using python as in shell
         order.save()
@@ -115,7 +165,7 @@ def app_charge(request):
             result = razorpay_client.utility.verify_payment_signature(params_dict)
             print(result)
             if result==None:
-                amount = order_db.amount
+                amount = order_db.amount*100
                 try:
                     razorpay_client.payment.capture(payment_id, amount)
                     update = OrderUpdate(order_id=order_db.order_id, update_desc="The order has been placed")
@@ -142,3 +192,6 @@ def app_charge(request):
             update.save()
             thank =  False
             return render(request, 'shop/checkout.html', {'thank': thank})
+
+
+
