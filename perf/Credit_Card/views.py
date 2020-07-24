@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from .models import *
 from django.core.mail import send_mail
+from django.contrib import admin
 from django.template.loader import render_to_string
 
 import razorpay
@@ -20,6 +21,9 @@ razorpay_client = razorpay.Client(auth=("rzp_test_HjTkiDCGJADmpE", "FFuLbceQq7d3
 
 
 # Create your views here.
+def index(request):
+    return render(request, 'index.html')
+    
 def Loan_no(request):
     if request.method == 'POST':
         form = Loan(request.POST)
