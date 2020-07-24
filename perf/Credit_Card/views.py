@@ -3,6 +3,9 @@ from django.http import HttpResponseRedirect
 from Cibil.models import Credit_Card, Personal_Information, Application_History, Loan_Details, Loan_History
 import random
 from .forms import Information, Loan, Repayment, log_form
+from Cibil.views import extract_cibil
+from Emi.views import start_emi, emi
+from dateutil.relativedelta import relativedelta
 import datetime
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
@@ -28,15 +31,33 @@ def Loan_no(request):
             loan.Loan_Amount = form.cleaned_data['Amount']
             loan.Loan_Duration = form.cleaned_data['Duration']
             loan.Loan_Start_Date = datetime.datetime.now()
-            loan.Loan_End_Date = datetime.date(2035,1,1)
+            payment_date = loan.Loan_Start_Date + relativedelta(months=loan.Loan_Duration+1)
+            payment_date = payment_date.replace(day=1) - relativedelta(days=1)
+            loan.Loan_End_Date = payment_date
             if loan.Loan_Amount < (credit.Credit_Limit - credit.Current_Balance):
                 print("yes")
                 loan.Loan_Status = 'ongoing'
                 print(credit.Current_Balance)
                 print(credit.Credit_Limit - credit.Current_Balance)
                 credit.Current_Balance = credit.Current_Balance + loan.Loan_Amount
+                option = form.cleaned_data['option']
+                print(option)
                 loan.save()
                 credit.save()
+                if option == True :
+                    start_emi(loan)
+                    print(loan)
+                    emi_amt,interest,closing_bal = emi(loan.Loan_Amount,credit.Rate_Of_Interest,loan.Loan_Duration)
+                    if emi_amt + credit.Current_Balance < credit.Credit_Limit : 
+                        loan.On_Emi = True
+                        loan.save()
+                    else:
+                        loan.Loan_Status = 'cancelled'
+                        loan.save()
+
+                else:
+                    loan.save()
+                    
             else:
                 loan.Loan_Status = 'cancelled'
                 loan.save()
@@ -157,30 +178,111 @@ def credit_card_no(request):
             password = form.cleaned_data['password']
             username = form.cleaned_data['username']
             email = form.cleaned_data['email']
-            user = User.objects.create_user(username, email, password)
-            user.last_name = form.cleaned_data['lastname']
-            user.first_name = form.cleaned_data['firstname']
-            user.save()
-            info.save()
-            application = Application_History()
-            userid = info.Username
-            application.Username = Personal_Information.objects.get(Username=userid)
-            application.Application_Date = datetime.datetime.now()
-            print("***********")
-            if application.Application_Type == 'Credit Card':
-                print("&&&&&&&&&&&&&&&&&&&&&&&&&")
-                credit = Credit_Card()
-                credit.Username = Personal_Information.objects.get(Username=userid)
-                credit.Credit_Card_No = credit_card_no
-                credit.Credit_Limit = 50000
-                credit.Date_Issued = datetime.datetime.now()
-                credit.Date_Expired = datetime.date(2035,1,1)
-                credit.Current_Balance = 0
-                credit.Rate_Of_Interest = 5
-                credit.save()
-                application.Status = 'approved'
-                application.save()
-            messages.success(request, f'Your account has been successfully created')
+            user = authenticate(username=username, password=password)
+            print("**********8")
+            if user is not None:
+                print("************")
+                info.save()
+                application = Application_History()
+                userid = info.Username
+                application.Username = Personal_Information.objects.get(Username=userid)
+                application.Application_Date = datetime.datetime.now()
+                print("***********")
+                if application.Application_Type == 'Credit Card':
+                    credit = Credit_Card()
+                    credit.Username = Personal_Information.objects.get(Username=userid)
+                    n = len(Credit_Card.objects.filter(Username=credit.Username))
+                    if n < 3 :
+                        credit.Credit_Card_No = credit_card_no
+                        if extract_cibil(userid) == "Not Enough Credit History" :
+                            credit.Credit_Limit = 10000
+                            credit.Date_Issued = datetime.datetime.now()
+                            credit.Date_Expired = datetime.date(2035,1,1)
+                            credit.Current_Balance = 0
+                            credit.Rate_Of_Interest = 5
+                            credit.save()
+                            application.Status = 'approved'
+                            application.save()
+                        elif int(extract_cibil(userid)) < 499 :
+                            credit.Credit_Limit = 30000
+                            credit.Date_Issued = datetime.datetime.now()
+                            credit.Date_Expired = datetime.date(2035,1,1)
+                            credit.Current_Balance = 0
+                            credit.Rate_Of_Interest = 5
+                            credit.save()
+                            application.Status = 'approved'
+                            application.save()
+                        elif int(extract_cibil(userid)) < 600 :
+                            credit.Credit_Limit = 50000
+                            credit.Date_Issued = datetime.datetime.now()
+                            credit.Date_Expired = datetime.date(2035,1,1)
+                            credit.Current_Balance = 0
+                            credit.Rate_Of_Interest = 5
+                            credit.save()
+                            application.Status = 'approved'
+                            application.save()
+                        elif int(extract_cibil(userid)) <= 660 :
+                            credit.Credit_Limit = 70000
+                            credit.Date_Issued = datetime.datetime.now()
+                            credit.Date_Expired = datetime.date(2035,1,1)
+                            credit.Current_Balance = 0
+                            credit.Rate_Of_Interest = 5
+                            credit.save()
+                            application.Status = 'approved'
+                            application.save()
+                        elif int(extract_cibil(userid)) <= 780 :
+                            credit.Credit_Limit = 100000
+                            credit.Date_Issued = datetime.datetime.now()
+                            credit.Date_Expired = datetime.date(2035,1,1)
+                            credit.Current_Balance = 0
+                            credit.Rate_Of_Interest = 5
+                            credit.save()
+                            application.Status = 'approved'
+                            application.save()
+                        else:
+                            credit.Credit_Limit = 120000
+                            credit.Date_Issued = datetime.datetime.now()
+                            credit.Date_Expired = datetime.date(2035,1,1)
+                            credit.Current_Balance = 0
+                            credit.Rate_Of_Interest = 5
+                            credit.save()
+                            application.Status = 'approved'
+                            application.save()
+                    else:
+                        application.Status = 'rejected'
+                        application.save()
+                        messages.success(request, f'Your are exceding the maximum Credit Card')
+
+
+                messages.success(request, f'Your account has been successfully created')
+
+            else:
+                
+                user = User.objects.create_user(username, email, password)
+                user.last_name = form.cleaned_data['lastname']
+                user.first_name = form.cleaned_data['firstname']
+                user.save()
+                info.save()
+                application = Application_History()
+                userid = info.Username
+                application.Username = Personal_Information.objects.get(Username=userid)
+                application.Application_Date = datetime.datetime.now()
+                print("***********")
+                if application.Application_Type == 'Credit Card':
+                    print("&&&&&&&&&&&&&&&&&&&&&&&&&")
+                    credit = Credit_Card()
+                    credit.Username = Personal_Information.objects.get(Username=userid)
+                    credit.Credit_Card_No = credit_card_no
+                    
+                    credit.Credit_Limit = 50000
+                    credit.Date_Issued = datetime.datetime.now()
+                    credit.Date_Expired = datetime.date(2035,1,1)
+                    credit.Current_Balance = 0
+                    credit.Rate_Of_Interest = 5
+                    credit.save()
+                    application.Status = 'approved'
+                    application.save()
+                messages.success(request, f'Your account has been successfully created')
     else:
         form = Information()
 

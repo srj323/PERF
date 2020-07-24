@@ -19,6 +19,7 @@ class Loan(forms.Form):
     Creditcard = forms.IntegerField(label='Credit Card NO')
     Amount = forms.IntegerField(label='Amount Required')
     Duration = forms.IntegerField(label='Time Required to Replay the loan(in months)')
+    option = forms.BooleanField(label='ON EMi',required=False)
 
 
 class Repayment(forms.Form):
