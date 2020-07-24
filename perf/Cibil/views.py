@@ -61,9 +61,9 @@ def calculateScoreOnHistory(loan_details):
     for card in loan_details:
         for loan in card:
             for instalment in loan[1]:
-                a = numOfDays(instalment.Payment_Date,date.today())/365 #in years i.e convert days to years
-                recent_factor = 1/(1+(a//7))# for every slab of 7 years
                 if instalment.Payment_Status=="completed" or instalment.Payment_Status=="recovered":
+                    a = numOfDays(instalment.Payment_Date,date.today())/365 #in years i.e convert days to years
+                    recent_factor = 1/(1+(a//7))# for every slab of 7 years
                     x = numOfDays(instalment.Payment_Date,instalment.Payment_Paid_On)
                     if x==0: list[0]+=recent_factor*1
                     elif x>90: list[4]+=recent_factor*-2
@@ -72,6 +72,8 @@ def calculateScoreOnHistory(loan_details):
                     else: list[1]+=recent_factor*0.75
 
                 elif instalment.Payment_Status!="ongoing": #'completed' or 'recovered' or 'unrecovered'
+                    a = numOfDays(instalment.Payment_Date,date.today())/365 #in years i.e convert days to years
+                    recent_factor = 1/(1+(a//7))# for every slab of 7 years
                     x = numOfDays(instalment.Payment_Date,date.today())
                     if x==0: list[0]+=recent_factor*1
                     elif x>90: list[4]+=recent_factor*-2
