@@ -12,6 +12,8 @@ from django.contrib.auth import authenticate, login
 from django.utils import timezone
 from django.contrib.auth.models import User
 from .models import *
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 
 import razorpay
 razorpay_client = razorpay.Client(auth=("rzp_test_HjTkiDCGJADmpE", "FFuLbceQq7d3bxsL2rawq6oR"))
@@ -34,6 +36,10 @@ def Loan_no(request):
             payment_date = loan.Loan_Start_Date + relativedelta(months=loan.Loan_Duration+1)
             payment_date = payment_date.replace(day=1) - relativedelta(days=1)
             loan.Loan_End_Date = payment_date
+            usern = credit.Username
+            h = Personal_Information.objects.get(Username=usern)
+            print(h)
+            mail = h.Email
             if loan.Loan_Amount < (credit.Credit_Limit - credit.Current_Balance):
                 print("yes")
                 loan.Loan_Status = 'ongoing'
@@ -51,14 +57,26 @@ def Loan_no(request):
                     if emi_amt + credit.Current_Balance < credit.Credit_Limit : 
                         loan.On_Emi = True
                         loan.save()
+                        mail_subject = 'Loan PERF'
+                        message = 'Loan has been approved over EMI'
+                        send_mail(mail_subject, message, 'perf.mail.mail@gmail.com', [mail])
                     else:
+                        mail_subject = 'Loan PERF'
+                        message = 'Loan has been cancelled as your cant do it over EMI'
+                        send_mail(mail_subject, message, 'perf.mail.mail@gmail.com', [mail])
                         loan.Loan_Status = 'cancelled'
                         loan.save()
 
                 else:
+                    mail_subject = 'Loan PERF'
+                    message = 'Loan has been approved!!'
+                    send_mail(mail_subject, message, 'perf.mail.mail@gmail.com', [mail])
                     loan.save()
                     
             else:
+                mail_subject = 'Loan PERF'
+                message = 'Loan has been cancelled.'
+                send_mail(mail_subject, message, 'perf.mail.mail@gmail.com', [mail])
                 loan.Loan_Status = 'cancelled'
                 loan.save()
                 print("cancelled")
@@ -303,11 +321,12 @@ def log(request):
                 login(request, user)
                 print("**********************")
                 personal_info = Personal_Information.objects.get(Username=username)
-                card = Credit_Card.objects.get(Username=personal_info.Username)
-                print(card.Credit_Card_No)
-                lon = Loan_Details.objects.filter(Credit_Card_No=card.Credit_Card_No)
-                print(lon)
-                return render(request, 'profile.html', {'personal_info':personal_info, 'card':card, 'loan':lon})
+                card = Credit_Card.objects.filter(Username=personal_info.Username)
+                # print(card.Credit_Card_No)
+                print(card)
+                # lon = Loan_Details.objects.filter(Credit_Card_No=card.Credit_Card_No)
+                # print(lon)
+                return render(request, 'profile1.html', {'personal_info':personal_info, 'card':card})
             else:
                 return render(request, 'login.html')
     

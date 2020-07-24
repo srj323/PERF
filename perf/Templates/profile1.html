@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>Cibil Report</title>
+    <title>Profile Page</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
@@ -12,17 +12,10 @@
     <title></title>
   </head>
   <body>
-    <center><h1>Credit Report</h1></center>
+    <center><h1>Profile Paege</h1></center>
     <hr>
     <br>
 
-    <div class="card border-primary mx-auto" style="max-width: 80rem; border-width:3px;">
-      <div class="card-header bg-primary text-black" style="font-weight: bold;text-align:center;">Your Credit Score
-      </div>
-      <div class="card-body  mx-auto border bg-dark text-white">
-        {{credit_score}}
-      </div>
-    </div>
     <br><br>
     <div class="card border-primary mx-auto" style="max-width: 80rem; border-width:3px;">
       <div class="card-header bg-primary text-black" style="font-weight: bold;text-align:center;">PERSONAL INFORMATION
@@ -78,46 +71,6 @@
 
     <br><br>
 
-    <div class="card border-primary mx-auto" style="max-width: 80rem; border-width:3px;">
-      <div class="card-header bg-primary text-black" style="font-weight: bold;text-align:center;">CONTACT INFORMATION
-      </div>
-      <div class="card-body  border bg-dark text-white">
-        <table style="width:100%">
-          <tr>
-            <th>Address <th>
-            <th>:</th>
-            <th> {{contact_info.Home}}, {{contact_info.Street}} </th>
-            <th></th>
-            <th></th>
-            <th>Pin</th>
-            <th>:</th>
-            <th>{{contact_info.Pin}}</th>
-          </tr>
-
-          <tr>
-            <th>City<th>
-            <th>:</th>
-            <th>{{contact_info.City}}</th>
-            <th></th>
-            <th></th>
-            <th>Mobile Number</th>
-            <th>:</th>
-            <th>{{contact_info.Mobile_Number}}</th>
-          </tr>
-
-          <tr>
-            <th>State<th>
-            <th>:</th>
-            <th>{{contact_info.State}}</th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-          </tr>
-        </table>
-      </div>
-    </div>
 
   <br><br>
 
@@ -125,7 +78,7 @@
       <div class="card-header bg-primary text-black" style="font-weight: bold;text-align:center;">CREDIT CARD INFORMATION
       </div>
       <div class="card-body  border bg-dark text-white">
-      
+      {% for card in card %}
         <hr><hr>
         <h3>CARD</h3>
         <table style="width:100%">
@@ -175,90 +128,13 @@
         </table>
         <span></span><br>
         <hr>
-      
+      {% endfor %}
       </div>
     </div>
 
   <br><br>
 
-    <div class="card border-primary mx-auto" style="max-width: 80rem; border-width:3px;">
-      <div class="card-header bg-primary text-black"  style="font-weight: bold;text-align:center;">Loan INFORMATION
-      </div>
-      
-        <div class="card-body  border bg-dark text-white">
-        <h3>CARD</h3>
-        {% for i in loan %}
-          <h4>Loan</h4>
-          <hr>
-          <table style="width:100%">
-            <tr>
-              <th>Loan Id</th>
-              <th>:</th>
-              <th>{{i.Loan_Id}}</th>
-              <th></th>
-              <th></th>
-              <th>Start Date</th>
-              <th>:</th>
-              <th>{{i.Loan_Start_Date}}</th>
-            </tr>
-
-            <tr>
-              <th>Loan Amount</th>
-              <th>:</th>
-              <th> {{i.Loan_Amount}}</th>
-              <th></th>
-              <th></th>
-              <th>End Date</th>
-              <th>:</th>
-              <th>{{i.Loan_End_Date}}</th>
-            </tr>
-
-            <tr>
-              <th>Loan Type</th>
-              <th>:</th>
-              <th>{{i.Loan_Type}}</th>
-              <th></th>
-              <th></th>
-              <th>Status</th>
-              <th>:</th>
-              <th>{{i.Loan_Status}}}</th>
-            </tr>
-
-            <tr>
-              <th>Loan_Duration</th>
-              <th>:</th>
-              <th>{{i.Loan_Duration}}</th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-            </tr>
-          </table>
-          <br>
-          <hr>
-          <table style="width:100%">
-            <tr>
-              <th>Payment Date</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Paid On</th>
-            </tr>
-          {% for history in loan %}
-            <tr>
-              <th>{{history.Payment_Date}}</th>
-              <th>{{history.Amount_To_Pay}}</th>
-              <th>{{history.Payment_Status}}</th>
-              <th>{{history.Payment_Paid_On}}</th>
-            </tr>
-
-          {% endfor %}
-        </table>
-        <br><br>
-        {% endfor %}
-        </div>
-      
-    </div>
+    
 
 
 
