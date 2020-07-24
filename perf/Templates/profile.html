@@ -125,7 +125,7 @@
       <div class="card-header bg-primary text-black" style="font-weight: bold;text-align:center;">CREDIT CARD INFORMATION
       </div>
       <div class="card-body  border bg-dark text-white">
-      {% for card in credit_card_list %}
+      
         <hr><hr>
         <h3>CARD</h3>
         <table style="width:100%">
@@ -175,7 +175,7 @@
         </table>
         <span></span><br>
         <hr>
-      {% endfor %}
+      
       </div>
     </div>
 
@@ -184,50 +184,50 @@
     <div class="card border-primary mx-auto" style="max-width: 80rem; border-width:3px;">
       <div class="card-header bg-primary text-black"  style="font-weight: bold;text-align:center;">Loan INFORMATION
       </div>
-      {% for card in details %}
+      
         <div class="card-body  border bg-dark text-white">
         <h3>CARD</h3>
-        {% for loan in card %}
+        {% for i in loan %}
           <h4>Loan</h4>
           <hr>
           <table style="width:100%">
             <tr>
               <th>Loan Id</th>
               <th>:</th>
-              <th>{{loan.0.Loan_Id}}</th>
+              <th>{{i.Loan_Id}}</th>
               <th></th>
               <th></th>
               <th>Start Date</th>
               <th>:</th>
-              <th>{{loan.0.Loan_Start_Date}}</th>
+              <th>{{i.Loan_Start_Date}}</th>
             </tr>
 
             <tr>
               <th>Loan Amount</th>
               <th>:</th>
-              <th> {{loan.0.Loan_Amount}}</th>
+              <th> {{i.Loan_Amount}}</th>
               <th></th>
               <th></th>
               <th>End Date</th>
               <th>:</th>
-              <th>{{loan.0.Loan_End_Date}}</th>
+              <th>{{i.Loan_End_Date}}</th>
             </tr>
 
             <tr>
               <th>Loan Type</th>
               <th>:</th>
-              <th>{{loan.0.Loan_Type}}</th>
+              <th>{{i.Loan_Type}}</th>
               <th></th>
               <th></th>
               <th>Status</th>
               <th>:</th>
-              <th>{{loan.0.Loan_Status}}}</th>
+              <th>{{i.Loan_Status}}}</th>
             </tr>
 
             <tr>
               <th>Loan_Duration</th>
               <th>:</th>
-              <th>{{loan.0.Loan_Duration}}</th>
+              <th>{{i.Loan_Duration}}</th>
               <th></th>
               <th></th>
               <th></th>
@@ -244,7 +244,7 @@
               <th>Status</th>
               <th>Paid On</th>
             </tr>
-          {% for history in loan.1 %}
+          {% for history in loan %}
             <tr>
               <th>{{history.Payment_Date}}</th>
               <th>{{history.Amount_To_Pay}}</th>
@@ -257,7 +257,7 @@
         <br><br>
         {% endfor %}
         </div>
-      {% endfor %}
+      
     </div>
 
 

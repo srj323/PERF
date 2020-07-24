@@ -7,6 +7,7 @@ urlpatterns = [
     path("loan/", views.Loan_no, name="Loan"),
     # path("loan_repayment/", views.Loan_repay, name="Loanrepayment"),
     path("payment/", views.Loan_repay,name="payment"),
-    path("payment/charge/", views.app_charge,name="charge")
+    path("payment/charge/", views.app_charge,name="charge"),
+    path("login", views.log,name="Log")
 
 ]
