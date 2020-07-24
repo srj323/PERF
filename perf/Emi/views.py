@@ -3,8 +3,10 @@ from dateutil.relativedelta import relativedelta
 from datetime import datetime,date,timedelta
 from Cibil.models import *
 from .models import *
-# import schedule
+import schedule
 import time
+from threading import Thread
+from django.core.mail import send_mail
 # def every_monday_morning():
 #     print("This is run every Monday morning at 7:30")
 #
@@ -79,6 +81,10 @@ def start_emi(Loan_Id):
     credit_card.Current_Balance = credit_card.Current_Balance + emi_amt
     credit_card.save()
     print("new_balace=",credit_card.Current_Balance)
+    mail = Loan_Id.Credit_Card_No.Username.Email
+    mail_subject = 'PERF: EMI Update'
+    message = f'Your EMI for this month against Loan Id:{Loan_Id.Loan_Id} is {emi_amt}. Last date to pay you EMI is payment_date'
+    send_mail(mail_subject, message, 'perf.mail.mail@gmail.com', [mail])
 
 
 def update_emi():
@@ -110,6 +116,10 @@ def update_emi():
                     emi_info.Curr_Interest_Amount = interest_amt
                     emi_info.Curr_Closing_Amount = closing_balance
                     emi_info.save()
+                    mail = loan_id.Credit_Card_No.Username.Email
+                    mail_subject = 'PERF: EMI Update'
+                    message = f"Your EMI for this month against Loan Id:{Loan_Id.Loan_Id} is {emi_amt}, Last date to pay you EMI is {payment_date}"
+                    send_mail(mail_subject, message, 'perf.mail.mail@gmail.com', [mail])
                 else:
                     emi_info.Amount_To_Pay = p
                     emi_info.Curr_Emi_Amount = 0
@@ -119,6 +129,10 @@ def update_emi():
                         emi_info.Payment_Status="recovered"
                     else:
                        emi_info.Payment_Status="completed"
+                    mail = loan_id.Credit_Card_No.Username.Email
+                    mail_subject = 'PERF: EMI Update'
+                    message = f"Your Loan for Loan Id:{Loan_Id.Loan_Id} is completed"
+                    send_mail(mail_subject, message, 'perf.mail.mail@gmail.com', [mail])
                     emi_info.save()
 
             else:
@@ -130,6 +144,10 @@ def update_emi():
                      emi_info.Payment_Status="recovered"
                  else:
                     emi_info.Payment_Status="completed"
+                 mail = loan_id.Credit_Card_No.Username.Email
+                 mail_subject = 'PERF: EMI Update'
+                 message = f"Your Loan for Loan Id:{Loan_Id.Loan_Id} is completed"
+                 send_mail(mail_subject, message, 'perf.mail.mail@gmail.com', [mail])
                  emi_info.save()
 
         elif loan.Payment_Status=="ongoing":
@@ -154,9 +172,13 @@ def update_emi():
                     emi_info.Curr_Interest_Amount = interest_amt
                     emi_info.Curr_Closing_Amount = closing_balance
                     emi_info.save()
+                    mail = loan_id.Credit_Card_No.Username.Email
+                    mail_subject = 'PERF: EMI Update'
+                    message = f"You have not paid you EMI for previous month.So, now your EMI has been changed. Your EMI for Loan Id:{Loan_Id.Loan_Id} is {emi_amt}"
+                    send_mail(mail_subject, message, 'perf.mail.mail@gmail.com', [mail])
 
                 else:
-                    emi_amt,interest_amt,closing_balance = emi(p,r,1)
+                    emi_amt,interest_amt,closing_balance = emi(p,r,0)
                     payment_date = date.today() + relativedelta(months=1)
                     payment_date = payment_date.replace(day=1) - relativedelta(days=1)
                     Loan_History.objects.create(Loan_Id=loan_id, Payment_Date=payment_date, Payment_Status="ongoing", Amount_To_Pay=emi_amt)
@@ -170,6 +192,10 @@ def update_emi():
                     emi_info.Curr_Interest_Amount = interest_amt
                     emi_info.Curr_Closing_Amount = closing_balance
                     emi_info.save()
+                    mail = loan_id.Credit_Card_No.Username.Email
+                    mail_subject = 'PERF: EMI Update'
+                    message = f"You have not paid you EMI for previous month.So, now your EMI has been changed. Your EMI for Loan Id:{Loan_Id.Loan_Id} is {emi_amt}"
+                    send_mail(mail_subject, message, 'perf.mail.mail@gmail.com', [mail])
 
 
 
@@ -196,8 +222,12 @@ def emi_calculation(request):
         loan_duration -= 1
 
 
-# schedule.every().day.at("00:22").do(update_emi)
+def scheduler():
+    schedule.every().day.at("00:22").do(update_emi)
 
-# while 1:
-#     schedule.run_pending()
-#     time.sleep(60)
+    while 1:
+         schedule.run_pending()
+         time.sleep(60)
+
+background_thread = Thread(target=scheduler)
+background_thread.start()
