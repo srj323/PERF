@@ -5,6 +5,7 @@ from Cibil.models import *
 from .models import *
 # import schedule
 import time
+from threading import Thread
 # def every_monday_morning():
 #     print("This is run every Monday morning at 7:30")
 #
@@ -156,7 +157,7 @@ def update_emi():
                     emi_info.save()
 
                 else:
-                    emi_amt,interest_amt,closing_balance = emi(p,r,1)
+                    emi_amt,interest_amt,closing_balance = emi(p,r,0)
                     payment_date = date.today() + relativedelta(months=1)
                     payment_date = payment_date.replace(day=1) - relativedelta(days=1)
                     Loan_History.objects.create(Loan_Id=loan_id, Payment_Date=payment_date, Payment_Status="ongoing", Amount_To_Pay=emi_amt)
@@ -196,8 +197,12 @@ def emi_calculation(request):
         loan_duration -= 1
 
 
-# schedule.every().day.at("00:22").do(update_emi)
+def scheduler():
+    schedule.every().day.at("00:22").do(update_emi)
 
-# while 1:
-#     schedule.run_pending()
-#     time.sleep(60)
+    while 1:
+         schedule.run_pending()
+         time.sleep(60)
+
+background_thread = Thread(target=scheduler)
+background_thread.start()
