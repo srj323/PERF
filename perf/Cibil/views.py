@@ -61,6 +61,7 @@ def calculateScoreOnHistory(loan_details):
     for card in loan_details:
         for loan in card:
             for instalment in loan[1]:
+                
                 if instalment.Payment_Status=="completed" or instalment.Payment_Status=="recovered":
                     a = numOfDays(instalment.Payment_Date,date.today())/365 #in years i.e convert days to years
                     recent_factor = 1/(1+(a//7))# for every slab of 7 years
@@ -276,8 +277,8 @@ def get_cibil(credit_card_list,details,personal_info):
 
 
 def get_all_info(request):
-    personal_info = Personal_Information.objects.get(Username='srj2')
-    contact_info = Contact_Information.objects.get(Username=personal_info)
+    personal_info = Personal_Information.objects.get(Username=request.user.username)
+    contact_info = Contact_Information.objects.get(Username=personal_info.Username)
     credit_card_list = Credit_Card.objects.filter(Username = personal_info)
     # loan_details_list = []
     # loan_history_list = []
@@ -348,8 +349,30 @@ def get_all_info(request):
 
     # return render(request, 'Doctor/time_slots.html', context=context)
 
+def extract_cibil(username):
+    personal_info = Personal_Information.objects.get(Username=username)
+    contact_info = Contact_Information.objects.get(Username=personal_info)
+    credit_card_list = Credit_Card.objects.filter(Username = personal_info)
+    # loan_details_list = []
+    # loan_history_list = []
+    details = []
 
 
+    for card in credit_card_list:
+        loan_details = Loan_Details.objects.filter(Credit_Card_No=card)                 #[Loan_Details [loan_card[loan_item[loan][loan_history[][]]]]]
+        loan_card = []
+        for loan in loan_details:
+            history=[]
+            loan_item = []
+            loan_item.append(loan)
+            history = Loan_History.objects.filter(Loan_Id=loan)
+            loan_item.append(history)
+            loan_card.append(loan_item)
+        details.append(loan_card)
+    print("---------------------cibil-score------------------------")
+    credit_score = get_cibil(credit_card_list,details,personal_info)
+
+    return credit_score
 
 
 

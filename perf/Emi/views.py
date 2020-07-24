@@ -3,7 +3,7 @@ from dateutil.relativedelta import relativedelta
 from datetime import datetime,date,timedelta
 from Cibil.models import *
 from .models import *
-import schedule
+# import schedule
 import time
 # def every_monday_morning():
 #     print("This is run every Monday morning at 7:30")
@@ -196,7 +196,7 @@ def emi_calculation(request):
         loan_duration -= 1
 
 
-schedule.every().day.at("00:22").do(update_emi)
+# schedule.every().day.at("00:22").do(update_emi)
 
 # while 1:
 #     schedule.run_pending()
