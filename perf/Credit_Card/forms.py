@@ -12,6 +12,12 @@ class Information(forms.Form):
     pan_issue_date = forms.DateField(label='Pan Issue Date')
     aadhar_no = forms.IntegerField(label='Aadhar NUmber')
     aadhar_issue_date = forms.DateField(label='Aadhar Issue Date')
+    Home = forms.CharField(label='Enter your home address')
+    Street = forms.CharField(label='Your street name')
+    City = forms.CharField(label='your city')
+    State = forms.CharField(label='Your state')
+    Pin = forms.CharField(label='pincode')
+    Mobile_Number = forms.CharField(label='Phone Number')
 
 
 

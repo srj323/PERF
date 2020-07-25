@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
-from Cibil.models import Credit_Card, Personal_Information, Application_History, Loan_Details, Loan_History
+from Cibil.models import Credit_Card, Personal_Information, Application_History, Loan_Details, Loan_History, Contact_Information
 import random
 from .forms import Information, Loan, Repayment, log_form
 from Cibil.views import extract_cibil
@@ -200,6 +200,15 @@ def credit_card_no(request):
             password = form.cleaned_data['password']
             username = form.cleaned_data['username']
             email = form.cleaned_data['email']
+            contact = Contact_Information()
+            contact.Home = form.cleaned_data['Home']
+            contact.Street = form.cleaned_data['Street']
+            contact.City = form.cleaned_data['City']
+            contact.State = form.cleaned_data['State']
+            contact.Pin = form.cleaned_data['Pin']
+            contact.Mobile_Number = form.cleaned_data['Mobile_Number']
+            
+            contact.save()
             user = authenticate(username=username, password=password)
             print("**********8")
             if user is not None:
@@ -209,6 +218,8 @@ def credit_card_no(request):
                 userid = info.Username
                 application.Username = Personal_Information.objects.get(Username=userid)
                 application.Application_Date = datetime.datetime.now()
+                contact.Username = Personal_Information.objects.get(Username=userid)
+                contact.save()
                 print("***********")
                 if application.Application_Type == 'Credit Card':
                     credit = Credit_Card()
@@ -294,6 +305,8 @@ def credit_card_no(request):
                     print("&&&&&&&&&&&&&&&&&&&&&&&&&")
                     credit = Credit_Card()
                     credit.Username = Personal_Information.objects.get(Username=userid)
+                    contact.Username = Personal_Information.objects.get(Username=userid)
+                    contact.save()
                     credit.Credit_Card_No = credit_card_no
                     
                     credit.Credit_Limit = 50000
