@@ -118,7 +118,7 @@ def update_emi():
                     emi_info.save()
                     mail = loan_id.Credit_Card_No.Username.Email
                     mail_subject = 'PERF: EMI Update'
-                    message = f"Your EMI for this month against Loan Id:{Loan_Id.Loan_Id} is {emi_amt}, Last date to pay you EMI is {payment_date}"
+                    message = f"Your EMI for this month against Loan Id:{Loan_Id.Loan_Id} is {emi_amt}, "
                     send_mail(mail_subject, message, 'perf.mail.mail@gmail.com', [mail])
                 else:
                     emi_info.Amount_To_Pay = p

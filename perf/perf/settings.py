@@ -141,8 +141,8 @@ STATICFILES_DIRS = [
 MEDIA_ROOT = os.path.join(BASE_DIR , 'media')
 MEDIA_URL = '/media/'
 
-# MEDIA_ROOT = '/perf/Credit_Card/assets/'
-# MEDIA_URL = 'assets/'
+# ASSET_ROOT = os.path.join(BASE_DIR , 'assets')
+# ASSET_URL = 'assets/'
 
 # MEDIA_ROOT = os.path.join(BASE_DIR , 'Credit_Card/')
 # MEDIA_URL = 'forms/'
