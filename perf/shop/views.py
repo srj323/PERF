@@ -6,6 +6,10 @@ from Cibil.models import Credit_Card
 from .forms import pay_form
 from math import ceil
 import json
+import datetime
+from dateutil.relativedelta import relativedelta
+from Cibil.models import *
+from django.core.mail import send_mail
 
 
 # payment
@@ -45,10 +49,48 @@ def perf(request):
                     return render(request, 'shop/checkout.html', params)
                 
                 else:
-                    
-                    thank = 2
+                    loan = Loan_Details()
+                    no = form.cleaned_data['Credit_card_no']
+                    loan.Credit_Card_No = Credit_Card.objects.get(Credit_Card_No=no)
+                    credit = Credit_Card.objects.get(Credit_Card_No=no)
+                    print(credit.Username)
+                    usern = credit.Username
+                    h = Personal_Information.objects.get(Username=usern)
+                    print(h)
+                    mail = h.Email
+                    loan.Loan_Type = 'Personal'
+                    loan.Loan_Amount = amount.amount
+                    loan.Loan_Start_Date = datetime.datetime.now()
+                    loan.Loan_Duration = 1
+                    payment_date = loan.Loan_Start_Date + relativedelta(months=loan.Loan_Duration+1)
+                    payment_date = payment_date.replace(day=1) - relativedelta(days=1)
+                    loan.Loan_End_Date = payment_date
+                    if loan.Loan_Amount < (credit.Credit_Limit - credit.Current_Balance):
+                        print("yes")
+                        loan.Loan_Status = 'ongoing'
+                        print(credit.Current_Balance)
+                        print(credit.Credit_Limit - credit.Current_Balance)
+                        credit.Current_Balance = credit.Current_Balance + loan.Loan_Amount
+                        # option = form.cleaned_data['option']
+                        # print(option)
+                        mail_subject = 'Loan PERF'
+                        message = 'Loan has been created for shopping at our merchandise page'
+                        send_mail(mail_subject, message, 'perf.mail.mail@gmail.com', [mail])
+                        loan.save()
+                        credit.save()
+                        
+                            
+                    else:
+                        loan.Loan_Status = 'cancelled'
+                        loan.save()
+                        mail_subject = 'Loan PERF'
+                        message = 'Loan has been canclled'
+                        send_mail(mail_subject, message, 'perf.mail.mail@gmail.com', [mail])
+                        print("cancelled")
+                        return render(request,'shop/failure.html' )
+                    thank = False
                     params = {'thank': thank}
-                    return render(request, 'shop/failure.html', params)
+                    return render(request, 'shop/perf.html', params)
 
         
 
